@@ -8,8 +8,17 @@ The idea with this project is insert different vulnerabilities over windows plat
 
  
 ### Using Visual Studio. 2013
+
  * VulChat properties (disable all security properties)
  
-  [C/C++ -> Code generation] -> Disable Security Check (/GS-)
+  [C/C++ -> Code generation] -
 
-  [Linker -> Advanced] -> (/DYNAMICBASE:NO), (/FIXED:NO), (/NXCOMPAT:NO) 
+  Disable Buffer Overrun Detection (/GS-)
+
+  [Linker -> Advanced]
+  
+  Disable ASLR         (/DYNAMICBASE:NO)
+  
+  Disable Relocations  (/FIXED:NO)
+  
+  Disable DEP          (/NXCOMPAT:NO) 
