@@ -19,6 +19,7 @@ fd_set readfds;
 
 //length of addr
 int addrlen;
+char ip_address[INET_ADDRSTRLEN];
 
 //max numbers of clients admit
 #define MAX_CLIENTS 30
@@ -153,20 +154,43 @@ void acept_new_connection()
 	}
 }
 
-void vul_cmd_proccess(int s, char *buffer, int i, int length)
+//This function has a buffer overflow vulnerability 
+void vul_cmd_proccess(int s, char *buffer, int client)
 {
-	char buf[10]; //vuln params
+	char cmd[20]; //vuln params
+	char *msg = "bad command\r\n";
+	int length = 10;
 
-	strcpy(buf, buffer);
+	strcpy(cmd, buffer);
+	if (strlen(buffer) < 20)
+	{
+		length = strlen(buffer);
+	}
+
+	cmd[length] = '\0';
 
 	//cmd [register "name_user", list, send (name_user) "text"]
-	send(s, buf, length, 0);
+	if (0 == strcmp(cmd, "hello"))
+	{
+		msg = "good command\r\n";
+	}
+	else if (0 == strcmp(cmd, "quit"))
+	{
+		getpeername(s, (struct sockaddr*)&address, (int*)&addrlen);
+		inet_ntop(AF_INET, &(address.sin_addr), ip_address, INET_ADDRSTRLEN);
+		printf("[-] Host close the connection, ip %s, port %d \n", ip_address, ntohs(address.sin_port));
+
+		closesocket(s);
+		client_socket[client] = 0;
+		return;
+	}
+
+	send(s, msg, strlen(msg), 0);
 }
 
 void waiting_connections()
 {
-	int i, valread, enter_cmd, length;	
-	char ip_address[INET_ADDRSTRLEN];
+	int client, valread, enter_cmd, length;		
 
 	//1 extra for null character, string termination
 	char *buffer, *buffer_recv;
@@ -183,9 +207,9 @@ void waiting_connections()
 		acept_new_connection();
 
 		//else its some IO operation on some other socket :)
-		for (i = 0; i < MAX_CLIENTS; i++)
+		for (client = 0; client < MAX_CLIENTS; client++)
 		{
-			s = client_socket[i];
+			s = client_socket[client];
 			//if client presend in read sockets            
 			if (FD_ISSET(s, &readfds))
 			{
@@ -209,7 +233,7 @@ void waiting_connections()
 
 							//Close the socket and mark as 0 in list for reuse
 							closesocket(s);
-							client_socket[i] = 0;
+							client_socket[client] = 0;
 						}
 						else
 						{
@@ -226,7 +250,7 @@ void waiting_connections()
 
 						//Close the socket and mark as 0 in list for reuse
 						closesocket(s);
-						client_socket[i] = 0;
+						client_socket[client] = 0;
 
 						enter_cmd = 0;
 						break;
@@ -235,12 +259,12 @@ void waiting_connections()
 					memcpy(&(buffer[length]), buffer_recv, valread);
 					length += valread;
 				} 
-				while (buffer_recv[0] != '\r' && buffer_recv[1] != '\n');
+				while (buffer_recv[0] != '\r' || buffer_recv[1] != '\n');
 				
 				if (enter_cmd)
 				{				
 					buffer[length - 2] = '\0';
-					vul_cmd_proccess(s, buffer, i, length - 2);
+					vul_cmd_proccess(s, buffer, client);
 				}
 			}
 		}
@@ -258,6 +282,8 @@ int main(int argc, char* argv[])
 	printf("[*] Socket created.\n");
 
 	prepare_socket();
+
+	printf("[*] Running at %d port.\n", DEFAULT_PORT);
 
 	bind_server();
 
