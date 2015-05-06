@@ -1,5 +1,5 @@
 # VulChat
-This is a chat server with different vulnerabilities
+This is a x64 chat server with different vulnerabilities
 
 The idea with this project is insert different vulnerabilities over windows platform to exploit them.
 
@@ -22,3 +22,5 @@ The idea with this project is insert different vulnerabilities over windows plat
   Disable Relocations  (/FIXED:NO)
   
   Disable DEP          (/NXCOMPAT:NO) 
+  
+  Exception Handling Protection (/SafeSEH:NO) Dont for x64
