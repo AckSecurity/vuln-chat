@@ -9,9 +9,7 @@ The idea with this project is insert different vulnerabilities over windows plat
  
 ### Using Visual Studio. 2013
 
- * VulChat properties (disable all security properties)
- 
-  First to compile the project you have to add the _CRT_SECURE_NO_WARNINGS definition to your project's settings
+ * First  disable all security properties
 
   [C/C++ -> Code generation] -
 
@@ -28,3 +26,5 @@ The idea with this project is insert different vulnerabilities over windows plat
   Exception Handling Protection (/SafeSEH:NO) Dont for x64
 
   Structured Exception Handler Overwrite Protection (SEHOP) disable in the register
+
+ * Second to compile the project you have to add the _CRT_SECURE_NO_WARNINGS definition to your project's settings
