@@ -7,7 +7,7 @@ The idea with this project is insert different vulnerabilities over windows plat
  * Stack Buffer Overflow
 
  
-### Using Visual Studio. 2013
+### Using VS 2013 to compile
 
  * First  disable all security properties
 
